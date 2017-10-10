@@ -84,9 +84,11 @@ class MainActivity : AppCompatActivity() {
             // 2
             if (resultCode == Activity.RESULT_OK) {
                 // 3
-                val task = data?.getStringExtra(TaskDescriptionActivity.EXTRA_TASK_DESCRIPTION)
+                //val task = data?.getStringExtra(TaskDescriptionActivity.EXTRA_TASK_DESCRIPTION)
+                val task = data?.getSerializableExtra(TaskDescriptionActivity.EXTRA_TASK_DESCRIPTION) as Task
+                val task2 = Task("asdf", Date(0))
                 task?.let {
-                    taskList.add(task)
+                    taskList.add(task.taskDescription)
                     // 4
                     adapter.notifyDataSetChanged()
                 }

@@ -1,19 +1,13 @@
 package com.example.reminderapp
 
 import android.app.Activity
-import android.app.Dialog
-import android.app.DialogFragment
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import kotlinx.android.synthetic.main.activity_task_description.*
-import android.widget.TimePicker
-import android.text.format.DateFormat.is24HourFormat
-import android.app.TimePickerDialog
-import android.text.format.DateFormat
+import java.io.Serializable
 import java.util.*
-import android.widget.ScrollView
 
 
 
@@ -37,9 +31,12 @@ class TaskDescriptionActivity : AppCompatActivity() {
         val taskDescription = descriptionText.text.toString()
 
         if (!taskDescription.isEmpty()) {
+            val task = Task(taskDescription,
+                    Date(datePicker.year, datePicker.month, datePicker.dayOfMonth, timePicker.hour, timePicker.minute))
             // 2
             val result = Intent()
-            result.putExtra(EXTRA_TASK_DESCRIPTION, taskDescription)
+            //result.putExtra(EXTRA_TASK_DESCRIPTION, taskDescription)
+            result.putExtra(EXTRA_TASK_DESCRIPTION, task)
             setResult(Activity.RESULT_OK, result)
         } else {
             // 3
@@ -50,4 +47,9 @@ class TaskDescriptionActivity : AppCompatActivity() {
         finish()
 
     }
+}
+
+public class Task (description: String, date: Date) : Serializable {
+    val taskDescription = description
+    val dateTime = date
 }
