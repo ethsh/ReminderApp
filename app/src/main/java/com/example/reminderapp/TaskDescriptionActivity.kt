@@ -10,7 +10,6 @@ import java.io.Serializable
 import java.util.*
 
 
-
 class TaskDescriptionActivity : AppCompatActivity() {
 
     // 1
@@ -49,7 +48,7 @@ class TaskDescriptionActivity : AppCompatActivity() {
     }
 }
 
-public class Task (description: String, date: Date) : Serializable {
+data class Task (val description: String, val date: Date) : Serializable {
     val taskDescription = description
     val dateTime = date
 }

@@ -18,8 +18,12 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
-    private val taskList: MutableList<String> = mutableListOf()
-    private val adapter by lazy { makeAdapter(taskList) }
+    private val taskList: MutableList<Task> = mutableListOf()
+    private val taskListDesciptors: MutableList<String> = mutableListOf()
+
+    private val adapter by lazy { makeAdapter(taskListDesciptors) }
+    //private val adapter by lazy { makeAdapterTask(taskList) }
+
     private val tickReceiver by lazy { makeBroadcastReceiver() }
 
     private val ADD_TASK_REQUEST = 1
@@ -50,7 +54,8 @@ class MainActivity : AppCompatActivity() {
         val savedList = getSharedPreferences(PREFS_TASKS, Context.MODE_PRIVATE).getString(KEY_TASKS_LIST, null)
         if (savedList != null) {
             val items = savedList.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            taskList.addAll(items)
+
+            //taskList.addAll(items)
         }
         taskListView.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             taskSelected(position)
@@ -86,9 +91,9 @@ class MainActivity : AppCompatActivity() {
                 // 3
                 //val task = data?.getStringExtra(TaskDescriptionActivity.EXTRA_TASK_DESCRIPTION)
                 val task = data?.getSerializableExtra(TaskDescriptionActivity.EXTRA_TASK_DESCRIPTION) as Task
-                val task2 = Task("asdf", Date(0))
                 task?.let {
-                    taskList.add(task.taskDescription)
+                    taskList.add(task)
+                    taskListDesciptors.add(task.taskDescription) // TODO: WHY DO I NEED THIS?!
                     // 4
                     adapter.notifyDataSetChanged()
                 }
@@ -99,6 +104,10 @@ class MainActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
 
+        saveTasksToFile()
+    }
+
+    private fun saveTasksToFile() {
         // Save all data which you want to persist.
         val savedList = StringBuilder()
         for (task in taskList) {
@@ -119,8 +128,22 @@ class MainActivity : AppCompatActivity() {
         startActivityForResult(intent, ADD_TASK_REQUEST)
     }
 
-    private fun makeAdapter(list: List<String>): ArrayAdapter<String> =
-            ArrayAdapter(this, android.R.layout.simple_list_item_1, list)
+    private fun TasksListToDescriptionsList(list: List<Task>) : List<String>{
+        val retMutableList: MutableList<String> = mutableListOf()
+        for (task in list) {
+            retMutableList.add(task.taskDescription)
+        }
+        val retList: List<String> = retMutableList
+        return retList
+    }
+
+    private fun makeAdapter(list: List<String>): ArrayAdapter<String> {
+        return ArrayAdapter(this, android.R.layout.simple_list_item_1, list)
+    }
+
+    private fun makeAdapterTask(list: List<Task>): ArrayAdapter<String> {
+        return ArrayAdapter(this, android.R.layout.simple_list_item_1, TasksListToDescriptionsList(list))
+    }
 
     private fun makeBroadcastReceiver(): BroadcastReceiver {
         return object : BroadcastReceiver() {
@@ -138,9 +161,10 @@ class MainActivity : AppCompatActivity() {
                 // 2
                 .setTitle(R.string.alert_title)
                 // 3
-                .setMessage(taskList[position])
+                .setMessage(taskList[position].taskDescription)
                 .setPositiveButton(R.string.delete, { _, _ ->
                     taskList.removeAt(position)
+                    taskListDesciptors.removeAt(position)
                     adapter.notifyDataSetChanged()
                 })
                 .setNegativeButton(R.string.cancel, {
@@ -153,3 +177,4 @@ class MainActivity : AppCompatActivity() {
     }
 
 }
+
