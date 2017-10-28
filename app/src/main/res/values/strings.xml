@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">ReminderApp</string>
     <string name="add_task">Add Task</string>
-    <string name="description">Enter task description:</string>
     <string name="done">Done</string>
+    <string name="description">Description</string>
     <string name="change_time">Change Time</string>
     <string name="alert_title">Task</string>
     <string name="delete">Delete</string>
