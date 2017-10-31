@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -20,12 +21,12 @@ import java.util.ListIterator;
 
 public class Task implements Serializable {
     private String taskDescription;
-    private Date dateTime;
+    private Calendar dateTime;
 
     public static final String taskDescriptionJsonString = "taskDescription";
     public static final String dateTimeJsonString = "dateTime";
 
-    public Task(String description, Date date) {
+    public Task(String description, Calendar date) {
         taskDescription = description;
         dateTime = date;
     }
@@ -33,7 +34,7 @@ public class Task implements Serializable {
     public String getDescription() {
         return taskDescription;
     }
-    public Date getDate() {
+    public Calendar getDate() {
         return dateTime;
     }
 
@@ -64,7 +65,9 @@ public class Task implements Serializable {
             JSONArray jsonarray = new JSONArray(jsonStr);
             for (int i = 0; i < jsonarray.length(); i++) {
                 JSONObject jsonObj = jsonarray.getJSONObject(i);
-                out_list.add(new Task(jsonObj.getString(taskDescriptionJsonString), new Date(jsonObj.getLong(dateTimeJsonString))));
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(jsonObj.getLong(dateTimeJsonString));
+                out_list.add(new Task(jsonObj.getString(taskDescriptionJsonString), calendar));
             }
         }
         catch (JSONException e) {

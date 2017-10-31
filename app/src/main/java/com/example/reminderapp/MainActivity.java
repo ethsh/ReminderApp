@@ -1,7 +1,11 @@
 package com.example.reminderapp;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,6 +13,8 @@ import android.content.Intent;
 //import android.content.res.Configuration;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.os.SystemClock;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,6 +27,7 @@ import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -30,10 +37,8 @@ import static com.example.reminderapp.R.id.taskListView;
 
 public class MainActivity extends AppCompatActivity {
 
-    //private ArrayList<Task> taskList = new ArrayList<Task>();
     private List<Task> taskList = new ArrayList<Task>();
     private clockUpdaterReceiver updaterReceiver = new clockUpdaterReceiver();
-    // private val tickReceiver by lazy { makeBroadcastReceiver() }
 
     private int ADD_TASK_REQUEST = 1;
 
@@ -65,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         String savedList = getSharedPreferences(PREFS_TASKS, Context.MODE_PRIVATE).getString(KEY_TASKS_LIST, null);
         if (savedList != null) {
             List<Task> saved_list = Task.jsonToTasksList(savedList);
@@ -77,11 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        // 1
         super.onResume();
-        // 2
-        // dateTimeTextView.text = getCurrentTimeStamp()
-        // 3
         registerReceiver(updaterReceiver, new IntentFilter(Intent.ACTION_TIME_TICK));
     }
 
@@ -102,21 +102,42 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // 1
         if (requestCode == ADD_TASK_REQUEST) {
-            // 2
             if (resultCode == Activity.RESULT_OK) {
-                // 3
-                //val task = data?.getStringExtra(TaskDescriptionActivity.EXTRA_TASK_DESCRIPTION)
                 Object obj = data.getSerializableExtra(TaskDescriptionActivity.EXTRA_TASK_DESCRIPTION);
                 Task task = (obj instanceof Task ? (Task)obj : null);
                 if (null != task) {
                     taskList.add(task);
-                    // 4
                     adapter.notifyDataSetChanged();
                 }
+                setTaskNotification(task);
             }
         }
+    }
+
+    private void setTaskNotification(Task task) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setContentTitle("Reminder!!");
+        builder.setContentText(task.getDescription());
+        builder.setSmallIcon(R.mipmap.ic_launcher);
+        Notification notification = builder.build();
+
+        /*
+        Intent notificationIntent = new Intent(this, NotificationPublisher.class);
+        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION_ID, 1);
+        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION, notification);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        long taskDate_milli = task.getDate().getTimeInMillis();
+        long now_system_time = System.currentTimeMillis();
+        long futureInMillis = taskDate_milli - now_system_time;
+        AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, now_system_time + 10000, pendingIntent);
+        */
+        NotificationManager notificationManager = (NotificationManager) getSystemService(
+                NOTIFICATION_SERVICE);
+        notificationManager.notify(1, notification);
+
     }
 
     @Override

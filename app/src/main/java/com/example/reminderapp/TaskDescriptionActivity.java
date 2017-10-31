@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.TimePicker;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
 
 public class TaskDescriptionActivity extends AppCompatActivity {
@@ -36,8 +37,9 @@ public class TaskDescriptionActivity extends AppCompatActivity {
         String taskDescription = descriptionText.getText().toString();
 
         if (!taskDescription.isEmpty()) {
-            Task task = new Task(taskDescription,
-                    new Date(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth(), timePicker.getHour(), timePicker.getMinute()));
+            Calendar dateTime = Calendar.getInstance();
+            dateTime.set(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth(), timePicker.getHour(), timePicker.getMinute());
+            Task task = new Task(taskDescription, dateTime);
             // 2
             Intent result = new Intent();
             result.putExtra(EXTRA_TASK_DESCRIPTION, task);

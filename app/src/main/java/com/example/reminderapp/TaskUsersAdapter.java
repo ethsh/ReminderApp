@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -34,7 +35,10 @@ public class TaskUsersAdapter extends ArrayAdapter<Task> {
         TextView task_date = (TextView) convertView.findViewById(R.id.textView_date);
         // Populate the data into the template view using the data object
         task_name.setText(task.getDescription());
-        task_date.setText(task.getDate().toString());
+
+        SimpleDateFormat format = new SimpleDateFormat("EEEE, MMMM d, yyyy 'at' h:mm a");
+        String time = format.format(task.getDate().getTimeInMillis());
+        task_date.setText(time);
         // Return the completed view to render on screen
         return convertView;
     }
