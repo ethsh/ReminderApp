@@ -7,23 +7,20 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-//import android.content.res.Configuration;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,8 +29,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import static com.example.reminderapp.R.id.parent;
-import static com.example.reminderapp.R.id.taskListView;
+//import static com.example.reminderapp.R.id.parent;
+//import static com.example.reminderapp.R.id.taskListView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -70,7 +67,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        String savedList = getSharedPreferences(PREFS_TASKS, Context.MODE_PRIVATE).getString(KEY_TASKS_LIST, null);
+        SharedPreferences preferences = getApplicationContext().getSharedPreferences(PREFS_TASKS, Context.MODE_PRIVATE);
+        String savedList = preferences.getString(KEY_TASKS_LIST, null);
+        //editor.commit();
+
+        //String savedList = getSharedPreferences(PREFS_TASKS, Context.MODE_PRIVATE).getString(KEY_TASKS_LIST, null);
         if (savedList != null) {
             List<Task> saved_list = Task.jsonToTasksList(savedList);
             taskList.addAll(saved_list);
@@ -110,17 +111,31 @@ public class MainActivity extends AppCompatActivity {
                     taskList.add(task);
                     adapter.notifyDataSetChanged();
                 }
-                setTaskNotification(task);
+                //setTaskNotification(task);
             }
         }
     }
 
     private void setTaskNotification(Task task) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+
         builder.setContentTitle("Reminder!!");
         builder.setContentText(task.getDescription());
         builder.setSmallIcon(R.mipmap.ic_launcher);
+        builder.setWhen(System.currentTimeMillis() + 1000000);
+        //builder.setDefaults(Notification.DEFAULT_ALL);
+        //builder.setPriority(NotificationCompat.PRIORITY_HIGH);
+        //builder.setWhen(System.currentTimeMillis() + 5000);
+        //RemoteViews headsUp = builder.createHeadsUpContentView();
+
         Notification notification = builder.build();
+
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.setComponent(new ComponentName("com.example.reminderapp","com.package.address.MainActivity"));
+        //Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.androidauthority.com/"));
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        builder.setContentIntent(pendingIntent);
 
         /*
         Intent notificationIntent = new Intent(this, NotificationPublisher.class);
@@ -150,8 +165,13 @@ public class MainActivity extends AppCompatActivity {
         // Save all data which you want to persist.
         String savedList = Task.tasksListToJson(taskList);
 
-        getSharedPreferences(PREFS_TASKS, Context.MODE_PRIVATE).edit()
-                .putString(KEY_TASKS_LIST, savedList).apply();
+        SharedPreferences preferences = getApplicationContext().getSharedPreferences(PREFS_TASKS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(KEY_TASKS_LIST, savedList);
+        editor.commit();
+
+
+        //getSharedPreferences(PREFS_TASKS, Context.MODE_PRIVATE).edit().putString(KEY_TASKS_LIST, savedList).apply();//.commit();//
     }
 
     @Override
@@ -182,18 +202,6 @@ public class MainActivity extends AppCompatActivity {
         Date now = new Date();
         return simpleDateFormat.format(now);
     }
-
-    /*
-    private BroadcastReceiver makeBroadcastReceiver() {
-        return object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent?) {
-                if (intent?.action == Intent.ACTION_TIME_TICK) {
-                    dateTimeTextView.text = getCurrentTimeStamp()
-                }
-            }
-        }
-    }
-    */
 
     public void taskSelected(final int position) {
         // 1
