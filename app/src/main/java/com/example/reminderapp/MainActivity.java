@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -63,15 +64,11 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3)
             {
                 taskSelected(position);
-                //Toast.makeText(SuggestionActivity.this, "" + position, Toast.LENGTH_SHORT).show();
             }
         });
 
-        SharedPreferences preferences = getApplicationContext().getSharedPreferences(PREFS_TASKS, Context.MODE_PRIVATE);
-        String savedList = preferences.getString(KEY_TASKS_LIST, null);
-        //editor.commit();
+        String savedList = getSharedPreferences(PREFS_TASKS, Context.MODE_PRIVATE).getString(KEY_TASKS_LIST, null);
 
-        //String savedList = getSharedPreferences(PREFS_TASKS, Context.MODE_PRIVATE).getString(KEY_TASKS_LIST, null);
         if (savedList != null) {
             List<Task> saved_list = Task.jsonToTasksList(savedList);
             taskList.addAll(saved_list);
@@ -165,13 +162,9 @@ public class MainActivity extends AppCompatActivity {
         // Save all data which you want to persist.
         String savedList = Task.tasksListToJson(taskList);
 
-        SharedPreferences preferences = getApplicationContext().getSharedPreferences(PREFS_TASKS, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(KEY_TASKS_LIST, savedList);
-        editor.commit();
-
-
-        //getSharedPreferences(PREFS_TASKS, Context.MODE_PRIVATE).edit().putString(KEY_TASKS_LIST, savedList).apply();//.commit();//
+        getSharedPreferences(PREFS_TASKS, Context.MODE_PRIVATE).edit()
+                .putString(KEY_TASKS_LIST, savedList)
+                .apply();
     }
 
     @Override

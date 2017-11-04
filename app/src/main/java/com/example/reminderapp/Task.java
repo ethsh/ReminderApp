@@ -46,7 +46,7 @@ public class Task implements Serializable {
 
                     JSONObject jsonObj = new JSONObject();
                     jsonObj.put(taskDescriptionJsonString, task.getDescription());
-                    jsonObj.put(dateTimeJsonString, task.getDate().getTime());
+                    jsonObj.put(dateTimeJsonString, task.getDate().getTimeInMillis());
                     jsonarray.put(counter, jsonObj);
 
                 counter++;
