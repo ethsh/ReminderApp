@@ -36,7 +36,7 @@ public class TaskUsersAdapter extends ArrayAdapter<Task> {
         // Populate the data into the template view using the data object
         task_name.setText(task.getDescription());
 
-        SimpleDateFormat format = new SimpleDateFormat("EEEE, MMMM d, yyyy 'at' h:mm a");
+        SimpleDateFormat format = new SimpleDateFormat("EEEE, MMMM dd, yyyy 'at' HH:mm a");
         String time = format.format(task.getDate().getTimeInMillis());
         task_date.setText(time);
         // Return the completed view to render on screen

@@ -13,6 +13,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
@@ -30,8 +31,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-//import static com.example.reminderapp.R.id.parent;
-//import static com.example.reminderapp.R.id.taskListView;
+import static com.example.reminderapp.TaskDescriptionActivity.EXTRA_TASK_DESCRIPTION;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -102,54 +103,29 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == ADD_TASK_REQUEST) {
             if (resultCode == Activity.RESULT_OK) {
-                Object obj = data.getSerializableExtra(TaskDescriptionActivity.EXTRA_TASK_DESCRIPTION);
+                Object obj = data.getSerializableExtra(EXTRA_TASK_DESCRIPTION);
                 Task task = (obj instanceof Task ? (Task)obj : null);
+
                 if (null != task) {
                     taskList.add(task);
                     adapter.notifyDataSetChanged();
                 }
-                //setTaskNotification(task);
+                setTaskNotification(task);
             }
         }
     }
 
     private void setTaskNotification(Task task) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        ArrayList temp_list = new ArrayList<Task>();
+        temp_list.add(task);
 
-        builder.setContentTitle("Reminder!!");
-        builder.setContentText(task.getDescription());
-        builder.setSmallIcon(R.mipmap.ic_launcher);
-        builder.setWhen(System.currentTimeMillis() + 1000000);
-        //builder.setDefaults(Notification.DEFAULT_ALL);
-        //builder.setPriority(NotificationCompat.PRIORITY_HIGH);
-        //builder.setWhen(System.currentTimeMillis() + 5000);
-        //RemoteViews headsUp = builder.createHeadsUpContentView();
+        Intent intent = new Intent(this, NotificationPublisher.class);
+        intent.putExtra(EXTRA_TASK_DESCRIPTION, Task.tasksListToJson(temp_list));
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
 
-        Notification notification = builder.build();
-
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.setComponent(new ComponentName("com.example.reminderapp","com.package.address.MainActivity"));
-        //Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.androidauthority.com/"));
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
-        builder.setContentIntent(pendingIntent);
-
-        /*
-        Intent notificationIntent = new Intent(this, NotificationPublisher.class);
-        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION_ID, 1);
-        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION, notification);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        long taskDate_milli = task.getDate().getTimeInMillis();
-        long now_system_time = System.currentTimeMillis();
-        long futureInMillis = taskDate_milli - now_system_time;
-        AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, now_system_time + 10000, pendingIntent);
-        */
-        NotificationManager notificationManager = (NotificationManager) getSystemService(
-                NOTIFICATION_SERVICE);
-        notificationManager.notify(1, notification);
-
+        AlarmManager alaramManger = (AlarmManager) getSystemService(ALARM_SERVICE);
+        long milli = task.getDate().getTimeInMillis();
+        alaramManger.setExact(AlarmManager.RTC, milli, pendingIntent);
     }
 
     @Override
@@ -206,7 +182,6 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton(R.string.delete,new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         taskList.remove(position);
-                        //taskListDesciptors.removeAt(position);
                         adapter.notifyDataSetChanged();
                     }
                 })

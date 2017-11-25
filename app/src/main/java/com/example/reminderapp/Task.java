@@ -1,5 +1,6 @@
 package com.example.reminderapp;
 
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 
 import org.json.JSONArray;
@@ -28,7 +29,8 @@ public class Task implements Serializable {
 
     public Task(String description, Calendar date) {
         taskDescription = description;
-        dateTime = date;
+        dateTime = Calendar.getInstance();
+        dateTime.setTimeInMillis(date.getTimeInMillis());
     }
 
     public String getDescription() {
